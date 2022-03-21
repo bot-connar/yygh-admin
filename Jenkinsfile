@@ -10,7 +10,7 @@ pipeline {
             agent none
             steps {
                 container('nodejs') {
-                    git(url: 'https://gitee.com/leifengyang/yygh-admin.git', credentialsId: 'gitee-id', branch: 'master', changelog: true, poll: false)
+                    git(url: 'https://github.com/zhangs41/yygh-admin.git', credentialsId: 'github-yygh', branch: 'main', changelog: true, poll: false)
                     sh 'ls -al'
                 }
 
@@ -45,8 +45,8 @@ pipeline {
             agent none
             steps {
                 container('nodejs') {
-                    withCredentials([usernamePassword(credentialsId : 'aliyun-docker-registry' ,usernameVariable : 'DOCKER_USER_VAR' ,passwordVariable : 'DOCKER_PWD_VAR' ,)]) {
-                        sh 'echo "$DOCKER_PWD_VAR" | docker login $REGISTRY -u "$DOCKER_USER_VAR" --password-stdin'
+                    withCredentials([usernamePassword(credentialsId : 'docker-registry' ,usernameVariable : 'DOCKER_USERNAME' ,passwordVariable : 'DOCKER_PASSWORD' ,)]) {
+                        sh 'echo "$DOCKER_PASSWORD" | docker login $REGISTRY -u "$DOCKER_USERNAME" --password-stdin'
                         sh 'docker tag yygh-admin:latest $REGISTRY/$DOCKERHUB_NAMESPACE/yygh-admin:SNAPSHOT-$BUILD_NUMBER'
                         sh 'docker push  $REGISTRY/$DOCKERHUB_NAMESPACE/yygh-admin:SNAPSHOT-$BUILD_NUMBER'
                     }
@@ -68,19 +68,19 @@ pipeline {
         stage('发送确认邮件') {
             agent none
             steps {
-                mail(to: '17512080612@163.com', subject: 'yygh-admin构建结果', body: "构建成功了  $BUILD_NUMBER")
+                mail(to: '1624435199@qq.com', subject: 'yygh-admin构建结果', body: "构建成功了  $BUILD_NUMBER")
             }
         }
 
     }
     environment {
-        DOCKER_CREDENTIAL_ID = 'dockerhub-id'
+        DOCKER_CREDENTIAL_ID = 'docker-registry'
         GITHUB_CREDENTIAL_ID = 'github-id'
         KUBECONFIG_CREDENTIAL_ID = 'demo-kubeconfig'
         REGISTRY = 'registry.cn-hangzhou.aliyuncs.com'
-        DOCKERHUB_NAMESPACE = 'lfy_hello'
+        DOCKERHUB_NAMESPACE = 'z_yygh'
+        ALIYUNHUB_NAMESPACE = 'z_yygh'
         GITHUB_ACCOUNT = 'kubesphere'
         APP_NAME = 'devops-java-sample'
-        ALIYUNHUB_NAMESPACE = 'lfy_hello'
     }
 }
